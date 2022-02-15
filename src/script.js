@@ -35,170 +35,184 @@ var products = [{
     "os": "Windows"
 }];
 
-// var select = document.getElementById("main");
 
-// for (var i=0;i<products.length;i++)
-// {
-//     var option = document.createElement("option");
-//     option.value = products[i].brand;
-//     option.text = products[i].brand.charAt(0).toUpperCase() + products[i].brand.slice(1);
-//     select.appendChild(option);
-// }
+$( document ).ready(function() {
+//    displayTop();
+   display();
+});
 
 
-// var brandArr = [];
+var Table="";
 
-// for(var i=0;i<products.length;i++){
-//      brandArr[i] = products[i].brand;
-// }
+function displayTop()
+{
+    $("#main").html("");
+    var dropBrand = "";
 
-
-//   document.getElementById("main").innerHTML = '<select> <option>Brand</option>\
-
-//    '+ for(var i=0;i<products.length;i++){
-//     var opt;
-//     opt += brandArr[i];
-
-//     '<option>'+opt+'</option>'
-// } +'</select>';
-
-
-// for(var i=0;i<products.length;i++){
-//      var opt;
-//      opt += brandArr[i];
-
-//      '<option>'+opt+'</option>'
-//}
-
-
-
-
-
-
-
-
-
-
-
-var drop = "";
-
-drop += '<select> <option>Brand</option>  ' ;
-
-for(var i=0;i<products.length;i++){
-    drop += '   <option >' + products[i].brand + '</option> ';
-}
-
-drop += "</select>";
-$("#main").append(drop);
-
-
-
-
-
-
-var os = "";
-
-os += '<select> <option>OS</option>  ' ;
-
-for(var i=0;i<products.length;i++){
-    os += '   <option >' + products[i].os + '</option> ';
-}
-
-os += "</select>";
-$("#main").append(os);
-
-
-
-
-
-
-var myTbale = "<table>"
-
-myTbale += '<table>  <tr> <th> ID </th> <th> Name </th> <th> Brand </th> <th> OS  </th> <th> Remove </th>  </tr>  ' ;
-
-for(var i=0;i<products.length;i++){
-    myTbale += '<tr id='+products[i].id+'> <td>' + products[i].id + '</td>   <td>' + products[i].name + '</td>  <td>' + products[i].brand + '</td>  <td>' + products[i].os + '</td>  <td>  <a href = "#" class="remove" '+ products[i].id+' > X </a>    </td>  </tr>'
-}
-
-myTbale += "</table>";
-  $("#main").append(myTbale);
-
-
-
-
-
-$(document).ready(function (){
-    $("a").click(function () {
-        $(this).parent().parent().hide()  ; 
-    });
+    dropBrand += '<select id="panel1" onchange = "filt()" > <option>Brand</option>  ' ;
     
-});
-
-
-
-
-
-
-
-
-
-$('<input/>').attr({ type: 'text', id: 'searchBox', name: 'searchBox'}).appendTo('#main');
-
-$('#main').focus(function(e) {
-    alert('Focus');
-});
-
-
-$('<input>').attr({ type: 'button', id: 'searchBtn', name: 'searchBtn', value: 'Search'}).appendTo('#main');
-
-$('#main').focus(function(e) {
-    alert('Focus');
-});
-
-
-
-
-$("#searchBtn").click(function(){
-   
-    var inputVal = $("#searchBox").val();
-    console.log(inputVal);
-
-   
-        
-       
-    // console.log(inputVal,products[i].id);
-    $("tr").each(function()
+    tempBrand = [];
+    var j=0;
+    for(var i=0;i< products.length;i++)
     {
-        var check = $("tr").children().first().html();
-        check=parseInt(check);
-        
-        for (var i=0; i < products.length; i++)
+        if(!tempBrand.includes(products[i].brand))
         {
-            // console.log(products[i].id);
-            // console.log(check == products[i].id);
-            if(check == products[i].id){
-                $("table").hide();
+            tempBrand.push(products[i].brand);
+            dropBrand += '   <option  class="brand" data-brand = '+products[i].brand+' >' + tempBrand[j] + '</option> ';
+            j++;
+        }
+    }
+
+    dropBrand += "</select>";
+    $("#main").append(dropBrand);
+
+    var dropOs = "";
+
+    dropOs += '<select id="panel2" onclick = "filt()"> <option>OS</option>  ' ;
+    
+    tempOs = [];
+    j=0;
+    for(var i=0;i<products.length;i++){
+        if(!tempOs.includes(products[i].os)){
+            tempOs.push(products[i].os);
+            dropOs += '   <option class = "os" data-os = "'+products[i].os+'" >' + tempOs[j] + '</option> ';
+            j++;
+        }
+       
+    }
+
+    dropOs += "</select>";
+    $("#main").append(dropOs);
+}
+
+function display()
+{
+    displayTop();
+    Table = "";
+    Table += '<table id ="myTable">  <tr> <th> ID </th> <th> Name </th> <th> Brand </th> <th> OS  </th> <th> Remove </th>  </tr>';
+    
+    for(var i=0;i<products.length;i++)
+    {
+        printTable(i);
+    }
+
+    Table += "</table>";
+    $("#main").append(Table);
+
+
+
+    $(document).ready(function (){
+        $("a").click(function () {
+            $(this).parent().parent().hide()  ; 
+        });
+        
+    });
+   displayBottom();
+
+}
+
+
+
+    function displayBottom(){
+
+    $('<input/>').attr({ type: 'text', id: 'searchBox', name: 'searchBox'}).appendTo('#main');
+
+    $('#main').focus(function(e) {
+        alert('Focus');
+    });
+
+
+    $('<input>').attr({ type: 'button', id: 'searchBtn', name: 'searchBtn', value: 'Search', onclick: 'search()'}).appendTo('#main');
+
+    $('#main').focus(function(e) {
+        alert('Focus');
+    });
+    }
+
+
+
+function search() {
+    var input, filter, table, tr, td1, td2, i, txtValue1, txtValue2;
+    input = document.getElementById("searchBox");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("myTable");
+    tr = table.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+      td1 = tr[i].getElementsByTagName("td")[0];
+      td2 = tr[i].getElementsByTagName("td")[1];
+      if (td1 || td2) {
+        txtValue1 = td1.textContent || td1.innerText;
+        txtValue2 = td2.textContent || td2.innerText;
+        if (txtValue1.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }       
+    }
+  }
+
+
+
+function filt(){
+    var x = document.getElementById("panel1").value;
+    var y = document.getElementById("panel2").value;
+    Table="";
+    // displayTop();
+    // myTable = $("#main").html();
+    console.log(x,y);
+    
+
+    Table += '<table id ="myTable">  <tr> <th> ID </th> <th> Name </th> <th> Brand </th> <th> OS  </th> <th> Remove </th>  </tr>';
+
+    for(var i=0;i<products.length;i++)
+    {
+        if(x=="Brand" && y=="OS")
+        {
+            printTable(i);
+        }
+        else if (x!='Brand' && y=='OS')
+        {
+            if (products[i].brand == x)
+            {
+                printTable(i);
             }
         }
-            
+        else if (x=='Brand' && y!='OS')
+        {
+            if (products[i].os == y)
+            {
+                printTable(i);
+            }
+        }
+        else
+        {
+            if ( (products[i].brand == x) && (products[i].os == y) )
+            {
+                printTable(i);
+            }
+        }
+    }
+
+
+    $(document).ready(function (){
+        $("a").click(function () {
+            $(this).parent().parent().hide()  ; 
+        });
+        
     });
+    Table += "</table>";
+    $('#main').html('');
+    displayTop();
   
+    $("#main").append(Table);
+    displayBottom();
     
-  });
+}
 
-//   function search(temp,inputVal,products){
-//       for(var i=0;i<products.length;i++){
-//           if(products[i].id == inputVal){
-//             //  $("td").parent().hide();
-//             console.log("yes");
-//           }
-//           else{
-//             $("td").parent().hide();
-//             console.log("no");
-//           }
-//       }
+function printTable(i)
+{
+    Table += '<tr id='+products[i].id+'> <td>' + products[i].id + '</td>   <td>' + products[i].name + '</td>  <td>' + products[i].brand + '</td>  <td>' + products[i].os + '</td>  <td>  <a href = "#" class="remove" '+ products[i].id+' > X </a>    </td>  </tr>';
 
+}
 
-// //   $("#main").append(temp);
-
-//   }
